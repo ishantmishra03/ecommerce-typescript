@@ -1,7 +1,15 @@
-export interface IUser {   
+export interface CartItem {
+  productId: string;
+  quantity: number;
+}
+
+export interface IUser {
   name: string;
   email: string;
   password: string;
-  createdAt?: Date;       
-  updatedAt?: Date;     
+  role?: 'user' | 'admin';
+  cart: CartItem[];
+  address?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
