@@ -17,7 +17,7 @@ const setAuthCookie = (res: Response, token: string) => {
   });
 };
 
-// Rgister
+// Register
 export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
