@@ -4,10 +4,13 @@ import Home from "./pages/Home";
 import ListProducts from "./pages/Products/ListProducts";
 import AddProduct from "./pages/Products/AddProduct";
 import Orders from "./pages/Orders/Orders";
+import { ThemeProvider } from "./context/ThemeContext";
+import Layout from "./components/Layout/Layout";
 
 const App = () => {
   return (
     <div>
+      <ThemeProvider>
       <Routes>
         <Route path="/" element={<Home />} />
 
@@ -15,7 +18,9 @@ const App = () => {
           path="/products"
           element={
             <ProtectedRoute>
-              <ListProducts />
+              <Layout>
+                <ListProducts />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -23,7 +28,9 @@ const App = () => {
           path="/add"
           element={
             <ProtectedRoute>
-              <AddProduct />
+              <Layout>
+                <AddProduct />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -32,11 +39,14 @@ const App = () => {
           path="/orders"
           element={
             <ProtectedRoute>
-              <Orders />
+              <Layout>
+                <Orders />
+              </Layout>
             </ProtectedRoute>
           }
         />
       </Routes>
+      </ThemeProvider>
     </div>
   );
 };

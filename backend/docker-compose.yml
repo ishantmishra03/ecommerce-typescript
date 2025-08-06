@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: backend-klyora
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    restart: always
+    command: node dist/index.js
