@@ -95,3 +95,43 @@ export const deleteProduct = async (req: Request, res: Response) => {
     });
   }
 };
+
+//Edit Product
+export const editProduct = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      name,
+      description,
+      price,
+      category,
+      stock,
+      ratings,
+    } = req.body;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
+
+    product.name = name ?? product.name;
+    product.description = description ?? product.description;
+    product.price = price ?? product.price;
+    product.category = category ?? product.category;
+    product.stock = stock ?? product.stock;
+    product.ratings = ratings ?? product.ratings;
+
+    await product.save();
+
+    res.json({ success: true, message: 'Product updated successfully' });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update product',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};

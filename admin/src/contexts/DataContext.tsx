@@ -7,6 +7,7 @@ interface DataContextType {
   products: Product[];
   orders: Order[];
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
+  fetchProducts: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -54,6 +55,7 @@ const addProduct = async (productData: Omit<Product, 'id' | 'createdAt'>) => {
     const {data} = await axios.post('/api/product/add', productData);
     if(data.success){
       toast.success(data.message);
+      fetchProducts();
     } else {
       toast.error(data.message);
     }
@@ -70,7 +72,7 @@ const addProduct = async (productData: Omit<Product, 'id' | 'createdAt'>) => {
   }, [])
 
   return (
-    <DataContext.Provider value={{ products, orders, addProduct }}>
+    <DataContext.Provider value={{ products, orders, addProduct, fetchProducts }}>
       {children}
     </DataContext.Provider>
   );

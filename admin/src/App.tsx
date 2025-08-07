@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import ViewProducts from './pages/ViewProducts';
 import AddProduct from './pages/AddProduct';
+import EditProduct from './pages/EditProduct';
 import ViewOrders from './pages/ViewOrders';
 
 function App() {
@@ -30,6 +31,13 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <AddProduct />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/edit/:id" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <EditProduct />
                   </Layout>
                 </ProtectedRoute>
               } />
