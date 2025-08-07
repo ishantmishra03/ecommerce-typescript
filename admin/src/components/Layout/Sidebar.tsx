@@ -10,7 +10,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const navItems = [
     { to: '/products', icon: Package, label: 'Products' },
-    { to: '/add', icon: Plus, label: 'Add Product' },
+    { to: '/add-product', icon: Plus, label: 'Add Product' },
     { to: '/orders', icon: ShoppingCart, label: 'Orders' }
   ];
 

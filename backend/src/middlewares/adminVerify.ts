@@ -8,7 +8,7 @@ interface JwtPayload {
   exp?: number;
 }
 
-interface AdminRequest extends Request {
+export interface AdminRequest extends Request {
   userId?: string;
 }
 

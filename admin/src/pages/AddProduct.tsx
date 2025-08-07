@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProductForm from '../../components/ProductForm';
-import type { ProductFormData } from '../../types';
-import { useAppContext } from '../../context/AppContext';
+import ProductForm from '../components/Forms/ProductForm';
+import { ProductFormData } from '../types';
+import { useData } from '../contexts/DataContext';
 
 const AddProduct: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addProduct } = useAppContext();
+  const { addProduct } = useData();
   const navigate = useNavigate();
 
   const handleSubmit = async (formData: ProductFormData) => {
     setIsSubmitting(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    addProduct({
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      price: parseFloat(formData.price),
-      images: formData.images,
-      category: formData.category,
-      stock: parseInt(formData.stock),
-      ratings: 0
-    });
-    
-    setIsSubmitting(false);
-    navigate('/products');
+
+    try {
+      await addProduct({
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        price: parseFloat(formData.price),
+        images: formData.images,
+        category: formData.category,
+        stock: parseInt(formData.stock),
+        ratings: 0,
+      });
+
+      navigate('/products');
+    } catch (error) {
+      console.error('Failed to add product:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

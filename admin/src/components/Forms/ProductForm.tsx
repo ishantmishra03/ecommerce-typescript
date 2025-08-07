@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import type { ProductFormData, ProductFormErrors } from '../types';
-import { Plus, X } from 'lucide-react';
+import { ProductFormData, ProductFormErrors } from '../../types';
+import { X } from 'lucide-react';
 
 interface ProductFormProps {
   onSubmit: (data: ProductFormData) => void;
   isSubmitting?: boolean;
 }
 
-const AddProduct: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = false }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = false }) => {
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -18,7 +18,6 @@ const AddProduct: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = false
   });
 
   const [errors, setErrors] = useState<ProductFormErrors>({});
-  const [currentImage, setCurrentImage] = useState('');
 
   const categories = ['Electronics', 'Clothing', 'Furniture', 'Books', 'Sports', 'Home & Garden'];
 
@@ -68,16 +67,47 @@ const AddProduct: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = false
     }
   };
 
-  const addImage = () => {
-    if (currentImage.trim() && !formData.images.includes(currentImage.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        images: [...prev.images, currentImage.trim()]
-      }));
-      setCurrentImage('');
-      if (errors.images) {
-        setErrors(prev => ({ ...prev, images: undefined }));
+  // Convert File to Base64 string
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result);
+        } else {
+          reject('Failed to convert file to base64');
+        }
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      try {
+        const base64Images = await Promise.all(
+          Array.from(files).map(file => fileToBase64(file))
+        );
+
+        // Filter out duplicates if any
+        setFormData(prev => {
+          const newImages = base64Images.filter(img => !prev.images.includes(img));
+          return {
+            ...prev,
+            images: [...prev.images, ...newImages]
+          };
+        });
+
+        if (errors.images) {
+          setErrors(prev => ({ ...prev, images: undefined }));
+        }
+      } catch (error) {
+        console.error('Error converting images', error);
       }
+      // Reset input so the same file can be uploaded again if needed
+      e.target.value = '';
     }
   };
 
@@ -198,24 +228,14 @@ const AddProduct: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = false
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Product Images *
         </label>
-        <div className="flex gap-2 mb-3">
-          <input
-            type="url"
-            value={currentImage}
-            onChange={(e) => setCurrentImage(e.target.value)}
-            placeholder="Enter image URL"
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:bg-gray-700 dark:text-white"
-          />
-          <button
-            type="button"
-            onClick={addImage}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add
-          </button>
-        </div>
-        
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImageUpload}
+          className="mb-3"
+        />
+
         {formData.images.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {formData.images.map((image, index) => (
@@ -259,4 +279,4 @@ const AddProduct: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = false
   );
 };
 
-export default AddProduct;
+export default ProductForm;

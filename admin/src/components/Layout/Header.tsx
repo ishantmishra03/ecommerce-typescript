@@ -1,7 +1,7 @@
 import React from 'react';
-import { Menu, Moon, Sun, LogOut } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
-import { useAppContext } from '../../context/AppContext';
+import { Menu, Moon, Sun, LogOut, User } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -9,7 +9,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { isDarkMode, toggleTheme } = useTheme();
-  const { logout } = useAppContext();
+  const { user, logout } = useAuth();
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
@@ -25,6 +25,13 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
       </h1>
       
       <div className="ml-auto flex items-center gap-2">
+        {/* User Info */}
+        <div className="hidden sm:flex items-center gap-3 mr-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <User className="w-4 h-4" />
+            <span>{user?.name}</span>
+          </div>
+        </div>
         
         {/* Theme Toggle */}
         <button

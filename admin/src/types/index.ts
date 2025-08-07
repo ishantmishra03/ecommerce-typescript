@@ -1,5 +1,5 @@
 export interface Product {
-  id: string;
+  _id?: string;
   name: string;
   description: string;
   price: number;
@@ -9,22 +9,29 @@ export interface Product {
   ratings: number;
   createdAt: Date;
 }
-
-export interface Order {
-  id: string;
-  customerName: string;
-  totalPrice: number;
-  orderDate: Date;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  items: OrderItem[];
-}
-
 export interface OrderItem {
   productId: string;
   productName: string;
   quantity: number;
   price: number;
 }
+
+export interface UserInfo {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+export interface Order {
+  _id: string;
+  user: UserInfo;          
+  totalPrice: number;       
+  orderDate: string;        
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  items: OrderItem[];
+  createdAt: Date;
+}
+
 
 export interface ProductFormData {
   name: string;

@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, Eye, Star } from 'lucide-react';
-import type { Product } from '../../types';
-import { useAppContext } from '../../context/AppContext';
+import { useData } from '../contexts/DataContext';
+import { Product } from '../types';
 
-const ListProducts: React.FC = () => {
-  const { products } = useAppContext();
+const ViewProducts: React.FC = () => {
+  const { products } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -146,7 +146,7 @@ const ListProducts: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {paginatedProducts.map(product => (
             <div
-              key={product.id}
+              key={product._id}
               className="bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden hover:shadow-md transition-shadow"
             >
               {product.images.length > 0 && (
@@ -236,4 +236,4 @@ const ListProducts: React.FC = () => {
   );
 };
 
-export default ListProducts;
+export default ViewProducts;

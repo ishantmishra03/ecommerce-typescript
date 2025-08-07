@@ -1,54 +1,51 @@
-import { Route, Routes } from "react-router-dom";
-import ProtectedRoute from "./config/ProtectedRoute";
-import Home from "./pages/Home";
-import ListProducts from "./pages/Products/ListProducts";
-import AddProduct from "./pages/Products/AddProduct";
-import Orders from "./pages/Orders/Orders";
-import { ThemeProvider } from "./context/ThemeContext";
-import Layout from "./components/Layout/Layout";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { DataProvider } from './contexts/DataContext';
+import Layout from './components/Layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
+import ViewProducts from './pages/ViewProducts';
+import AddProduct from './pages/AddProduct';
+import ViewOrders from './pages/ViewOrders';
 
-const App = () => {
+function App() {
   return (
-    <div>
-      <ThemeProvider>
-      <Routes>
-        <Route path="/" element={<Home />} />
-
-        <Route
-          path="/products"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <ListProducts />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/add"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AddProduct />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Orders />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-      </ThemeProvider>
-    </div>
+    <ThemeProvider>
+      <AuthProvider>
+        <DataProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Navigate to="/products" replace />} />
+              <Route path="/products" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ViewProducts />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/add-product" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AddProduct />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/orders" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ViewOrders />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </Router>
+        </DataProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
-};
+}
 
 export default App;

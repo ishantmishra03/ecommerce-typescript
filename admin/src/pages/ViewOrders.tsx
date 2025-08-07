@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Calendar, Filter } from 'lucide-react';
-import { useAppContext } from '../../context/AppContext';
+import { Search, Filter } from 'lucide-react';
+import { useData } from '../contexts/DataContext';
+import { Order } from '../types';
 
 
-const Orders: React.FC = () => {
-  const { orders } = useAppContext();
+const ViewOrders: React.FC = () => {
+  const { orders } = useData<{ orders: Order[] }>();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'total' | 'status'>('date');
@@ -30,19 +31,26 @@ const Orders: React.FC = () => {
   };
 
   const filteredAndSortedOrders = useMemo(() => {
-    const filtered = orders.filter(order => {
-      const matchesSearch = order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          order.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const mappedOrders = orders.map(order => ({
+      ...order,
+      customerName: order.user?.name || 'Unknown',
+      orderDate: new Date(order.createdAt),
+    }));
+
+    const filtered = mappedOrders.filter(order => {
+      const matchesSearch =
+        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order._id.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = !statusFilter || order.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
 
     return filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'date':
-          comparison = new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime();
+          comparison = a.orderDate.getTime() - b.orderDate.getTime();
           break;
         case 'total':
           comparison = a.totalPrice - b.totalPrice;
@@ -51,27 +59,25 @@ const Orders: React.FC = () => {
           comparison = a.status.localeCompare(b.status);
           break;
       }
-      
+
       return sortOrder === 'desc' ? -comparison : comparison;
     });
   }, [orders, searchTerm, statusFilter, sortBy, sortOrder]);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(price);
-  };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
+  const formatDate = (date: Date) =>
+    new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
-  };
 
   const handleSort = (field: 'date' | 'total' | 'status') => {
     if (sortBy === field) {
@@ -86,7 +92,7 @@ const Orders: React.FC = () => {
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Orders</h1>
-        
+
         {/* Search and Filter */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
@@ -95,16 +101,16 @@ const Orders: React.FC = () => {
               type="text"
               placeholder="Search by customer name or order ID..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
             />
           </div>
-          
+
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={e => setStatusFilter(e.target.value)}
               className="pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
             >
               <option value="">All Statuses</option>
@@ -124,19 +130,19 @@ const Orders: React.FC = () => {
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Order ID</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white">Customer</th>
-                <th 
+                <th
                   className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
                   onClick={() => handleSort('total')}
                 >
                   Total {sortBy === 'total' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th 
+                <th
                   className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
                   onClick={() => handleSort('date')}
                 >
                   Date {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th 
+                <th
                   className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-white cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
                   onClick={() => handleSort('status')}
                 >
@@ -146,8 +152,8 @@ const Orders: React.FC = () => {
             </thead>
             <tbody>
               {filteredAndSortedOrders.map(order => (
-                <tr key={order.id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="py-4 px-4 font-mono text-sm text-blue-600 dark:text-blue-400">{order.id}</td>
+                <tr key={order._id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td className="py-4 px-4 font-mono text-sm text-blue-600 dark:text-blue-400">{order._id}</td>
                   <td className="py-4 px-4 text-gray-900 dark:text-white">{order.customerName}</td>
                   <td className="py-4 px-4 font-semibold text-gray-900 dark:text-white">{formatPrice(order.totalPrice)}</td>
                   <td className="py-4 px-4 text-gray-600 dark:text-gray-300">{formatDate(order.orderDate)}</td>
@@ -165,17 +171,17 @@ const Orders: React.FC = () => {
         {/* Orders Cards - Mobile */}
         <div className="md:hidden space-y-4">
           {filteredAndSortedOrders.map(order => (
-            <div key={order.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+            <div key={order._id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="font-mono text-sm text-blue-600 dark:text-blue-400 mb-1">{order.id}</p>
+                  <p className="font-mono text-sm text-blue-600 dark:text-blue-400 mb-1">{order._id}</p>
                   <p className="font-semibold text-gray-900 dark:text-white">{order.customerName}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </span>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-lg text-gray-900 dark:text-white">{formatPrice(order.totalPrice)}</span>
                 <span className="text-sm text-gray-600 dark:text-gray-300">{formatDate(order.orderDate)}</span>
@@ -194,4 +200,4 @@ const Orders: React.FC = () => {
   );
 };
 
-export default Orders;
+export default ViewOrders;
