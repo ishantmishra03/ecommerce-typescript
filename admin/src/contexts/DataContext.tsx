@@ -8,6 +8,7 @@ interface DataContextType {
   orders: Order[];
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
   fetchProducts: () => Promise<void>;
+  fetchOrders: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -43,6 +44,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const {data} = await axios.get('/api/order');
       if(data.success){
         setOrders(data.orders);
+        console.log(data.orders);
       }
     } catch (error : unknown) {
       console.log(error.message);
@@ -72,7 +74,7 @@ const addProduct = async (productData: Omit<Product, 'id' | 'createdAt'>) => {
   }, [])
 
   return (
-    <DataContext.Provider value={{ products, orders, addProduct, fetchProducts }}>
+    <DataContext.Provider value={{ products, orders, addProduct, fetchProducts, fetchOrders }}>
       {children}
     </DataContext.Provider>
   );

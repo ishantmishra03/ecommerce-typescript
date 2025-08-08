@@ -9,11 +9,11 @@ export interface Product {
   ratings: number;
   createdAt: Date;
 }
+
 export interface OrderItem {
-  productId: string;
-  productName: string;
+  _id?: string;
+  product: Product;    // product object nested here
   quantity: number;
-  price: number;
 }
 
 export interface UserInfo {
@@ -24,14 +24,12 @@ export interface UserInfo {
 
 export interface Order {
   _id: string;
-  user: UserInfo;          
-  totalPrice: number;       
-  orderDate: string;        
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  user: UserInfo;
+  total: number;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   items: OrderItem[];
   createdAt: Date;
 }
-
 
 export interface ProductFormData {
   name: string;

@@ -75,7 +75,7 @@ export const getMyOrders = async (req: AuthRequest, res: Response) => {
 
 
 //Admin
-// Admin: Get all orders
+// Get all orders
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find()
@@ -87,7 +87,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
   }
 };
 
-// Update order status (for admin)
+// Update order status 
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { status } = req.body;

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
 import toast from 'react-hot-toast';
+import { useData } from '../contexts/DataContext';
 
 const EditProduct: React.FC = () => {
+  const { fetchProducts } = useData();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -47,6 +49,7 @@ const EditProduct: React.FC = () => {
       if (data.success) {
         toast.success('Product updated');
         navigate('/products'); 
+        fetchProducts();
       } else {
         toast.error(data.message || 'Update failed');
       }
