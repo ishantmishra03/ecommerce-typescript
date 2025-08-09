@@ -1,60 +1,38 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { Heart, Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
-const products = [
-  {
-    id: 1,
-    name: "Premium Wireless Headphones",
-    price: 299,
-    originalPrice: 399,
-    image:
-      "https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400",
-    rating: 4.8,
-    reviews: 124,
-    badge: "Best Seller",
-  },
-  {
-    id: 2,
-    name: "Smart Fitness Watch",
-    price: 199,
-    originalPrice: 249,
-    image:
-      "https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=400",
-    rating: 4.6,
-    reviews: 89,
-    badge: "New",
-  },
-  {
-    id: 3,
-    name: "Minimalist Backpack",
-    price: 79,
-    originalPrice: 99,
-    image:
-      "https://images.pexels.com/photos/2905238/pexels-photo-2905238.jpeg?auto=compress&cs=tinysrgb&w=400",
-    rating: 4.9,
-    reviews: 156,
-    badge: "Popular",
-  },
-  {
-    id: 4,
-    name: "Ceramic Coffee Mug Set",
-    price: 45,
-    originalPrice: 60,
-    image:
-      "https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=400",
-    rating: 4.7,
-    reviews: 203,
-    badge: "Limited",
-  },
-];
+import { Link, useNavigate } from "react-router-dom";
+import type { Product } from "../../types/product";
+import { useEffect, useState } from "react";
+import axios from "../../config/axios";
+import toast from "react-hot-toast";
 
 const FeaturedProducts = () => {
   const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
   const isDarkMode = useSelector(
     (state: RootState) => state.theme.mode === "dark"
   );
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const fetchLatestProducts = async () => {
+    try {
+      const {data} = await axios.get('/api/product/latest');
+      if(data.success){
+        setProducts(data.products);
+      }
+    } catch (error : any) {
+      toast.error(error.response?.data.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchLatestProducts();
+  }, [])
   return (
     <div>
       <section id="products" className="py-20">
@@ -79,7 +57,7 @@ const FeaturedProducts = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product) => (
               <div
-                key={product.id}
+                key={product._id}
                 className={`group rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 ${
                   isDarkMode
                     ? "bg-slate-800 hover:bg-slate-700"
@@ -87,14 +65,16 @@ const FeaturedProducts = () => {
                 } shadow-lg`}
               >
                 <div className="relative overflow-hidden">
+                  <Link to={`/product/${product._id}`}>
                   <img
-                    src={product.image}
+                    src={product.images[0]}
                     alt={product.name}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
                   />
+                  </Link>
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
-                      {product.badge}
+                      {product.category}
                     </span>
                   </div>
                   <button className="absolute top-4 right-4 p-2 bg-white/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -117,7 +97,7 @@ const FeaturedProducts = () => {
                         <Star
                           key={i}
                           className={`w-4 h-4 ${
-                            i < Math.floor(product.rating)
+                            i < Math.floor(product.ratings)
                               ? "text-yellow-400 fill-current"
                               : "text-gray-300"
                           }`}
@@ -129,7 +109,7 @@ const FeaturedProducts = () => {
                         isDarkMode ? "text-slate-400" : "text-gray-600"
                       }`}
                     >
-                      ({product.reviews})
+                      300
                     </span>
                   </div>
 
@@ -141,13 +121,6 @@ const FeaturedProducts = () => {
                         }`}
                       >
                         ${product.price}
-                      </span>
-                      <span
-                        className={`text-sm line-through ${
-                          isDarkMode ? "text-slate-500" : "text-gray-500"
-                        }`}
-                      >
-                        ${product.originalPrice}
                       </span>
                     </div>
                     <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -161,7 +134,7 @@ const FeaturedProducts = () => {
 
           <div className="text-center mt-12">
             <button
-              onClick={() => navigate('/products')}
+              onClick={() => handleNavigate("/products")}
               className={`px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-all duration-300 ${
                 isDarkMode ? "hover:text-white" : ""
               }`}

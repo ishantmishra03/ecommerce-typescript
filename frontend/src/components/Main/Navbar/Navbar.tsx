@@ -96,7 +96,7 @@ const Navbar: React.FC = () => {
               Products
             </button>
             <button
-              onClick={() => handleNavigate("/contact")}
+              onClick={() => handleNavigate("/")}
               className={`hover:text-blue-600 transition-colors text-lg ${
                 isDarkMode ? "text-slate-300" : "text-gray-700"
               }`}
@@ -130,7 +130,7 @@ const Navbar: React.FC = () => {
                 } shadow-sm`}
                 aria-label="Toggle Search"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-5 h-5" stroke={isDarkMode ? '#fff' : '#1f2937'}/>
               </button>
 
               <form
@@ -161,7 +161,7 @@ const Navbar: React.FC = () => {
                   } shadow-sm`}
                   aria-label="User Profile"
                 >
-                  <User className="w-6 h-6" />
+                  <User className="w-6 h-6" stroke={isDarkMode ? '#fff' : '#1f2937'}/>
                 </button>
 
                 <button
@@ -201,9 +201,9 @@ const Navbar: React.FC = () => {
               aria-label="Toggle Menu"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6"stroke={isDarkMode ? '#fff' : '#1f2937'}/>
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6" stroke={isDarkMode ? '#fff' : '#1f2937'}/>
               )}
             </button>
           </div>

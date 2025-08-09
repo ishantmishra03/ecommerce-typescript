@@ -135,3 +135,20 @@ export const editProduct = async (req: Request, res: Response) => {
     });
   }
 };
+
+// Get latest 4 products
+export const getLatestProducts = async (_req: Request, res: Response) => {
+  try {
+    const latestProducts = await Product.find()
+      .sort({ createdAt: -1 }) 
+      .limit(4);
+    res.json({ success: true, products: latestProducts });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch latest products',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
