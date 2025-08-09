@@ -16,26 +16,21 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 
-const whitelist: string[] = [
-  'http://localhost:5173',
-];
+const whitelist: string[] = process.env.CORS_WHITELIST
+  ? process.env.CORS_WHITELIST.split(',').map((origin) => origin.trim())
+  : [];
 
 
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    if (!origin) {
-      return callback(null, true); 
-    }
-
-    if (whitelist.includes(origin)) {
-      return callback(null, true); 
+    if (!origin || whitelist.includes(origin)) {
+      callback(null, true);
     } else {
-      return callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
 };
-
 
 app.use(cors(corsOptions));
 app.use(cookieParser());

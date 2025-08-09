@@ -1,6 +1,6 @@
 const Cart = () => {
   return (
-    <div>
+    <div className="text-5xl bg-slate-900 min-h-screen w-full text-white">
       Cart
     </div>
   )
