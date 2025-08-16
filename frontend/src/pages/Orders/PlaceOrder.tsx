@@ -39,20 +39,25 @@ const PlaceOrder: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    if (name in shippingAddress) {
-      setShippingAddress((prev) => ({ ...prev, [name]: value }));
+    setShippingAddress((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const clearUserCart = async () => {
+    try {
+      const { data } = await axios.delete("/api/cart/delete");
+      if (data.success) {
+        toast.success(data.message);
+      }
+    } catch (error: any) {
+      console.error(error?.response?.data?.message);
     }
   };
 
   const submitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !shippingAddress.address ||
-      !shippingAddress.city ||
-      !shippingAddress.postalCode ||
-      !shippingAddress.country
-    ) {
+    const { address, city, postalCode, country } = shippingAddress;
+    if (!address || !city || !postalCode || !country) {
       toast.error("Please fill in all shipping address fields");
       return;
     }
@@ -67,16 +72,16 @@ const PlaceOrder: React.FC = () => {
     };
 
     try {
-      const {data} = await axios.post("/api/order", orderPayload);
-
+      const { data } = await axios.post("/api/order", orderPayload);
       if (data.success) {
         toast.success(data.message || "Order placed successfully");
         dispatch(clearCartState());
-        navigate("/orders"); 
+        clearUserCart();
+        navigate("/orders");
       } else {
         toast.error(data.message || "Failed to place order");
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.error("Error placing order");
     } finally {
       setLoading(false);
@@ -86,125 +91,120 @@ const PlaceOrder: React.FC = () => {
   return (
     <>
       <Navbar />
-      <main
-        className={`min-h-screen px-4 sm:px-6 lg:px-8 pt-20 pb-32 max-w-7xl mx-auto
-          ${
-            isDarkMode
-              ? "bg-slate-900 text-gray-100"
-              : "bg-gray-50 text-gray-900"
-          }`}
+      <div className={`${
+          isDarkMode ? "bg-slate-900 text-gray-100" : "bg-gray-50 text-gray-900"
+        }`}>
+        <main
+        className={`min-h-screen px-4 sm:px-6 lg:px-8 pt-20 pb-24 max-w-5xl mx-auto ${
+          isDarkMode ? "bg-slate-900 text-gray-100" : "bg-gray-50 text-gray-900"
+        }`}
       >
-        <h1 className="text-3xl font-extrabold mb-8 select-none text-center">
-          Place Your Order
-        </h1>
+        <h1 className="text-3xl font-bold text-center mb-10 select-none">Review & Place Order</h1>
 
-        <section className="mb-10 bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4 border-b border-gray-300 dark:border-slate-700 pb-2">
-            Order Summary
-          </h2>
-          <ul className="divide-y divide-gray-200 dark:divide-slate-700 max-h-60 overflow-y-auto mb-4">
-            {items.map(({ product, name, price, quantity }) => (
-              <li
-                key={product}
-                className="flex justify-between py-2 text-gray-800 dark:text-gray-200"
-              >
-                <div>
-                  <span className="font-semibold">{name}</span> × {quantity}
-                </div>
-                <div>${(price * quantity).toFixed(2)}</div>
-              </li>
-            ))}
-          </ul>
-          <div className="text-right text-lg font-bold text-blue-600">
-            Total: ${total.toFixed(2)}
-          </div>
-        </section>
-
-        <form
-          onSubmit={submitOrder}
-          className="bg-white dark:bg-slate-800 rounded-lg shadow p-6"
-        >
-          <h2 className="text-xl font-semibold mb-4 border-b border-gray-300 dark:border-slate-700 pb-2">
-            Shipping Address
-          </h2>
-
-          <div className="space-y-4 mb-6">
-            {[
-              { label: "Address", name: "address", type: "text" },
-              { label: "City", name: "city", type: "text" },
-              { label: "Postal Code", name: "postalCode", type: "text" },
-              { label: "Country", name: "country", type: "text" },
-            ].map(({ label, name, type }) => (
-              <div key={name}>
-                <label
-                  htmlFor={name}
-                  className="block mb-1 font-medium dark:text-gray-300"
+        <div className="grid lg:grid-cols-2 gap-8">
+          <section className="bg-white dark:bg-slate-800 rounded-xl shadow p-6">
+            <h2 className="text-xl text-white font-semibold mb-4 border-b pb-2 border-gray-200 dark:border-slate-700">
+              Order Summary
+            </h2>
+            <ul className="divide-y divide-gray-200 dark:divide-slate-700 max-h-60 overflow-y-auto mb-4">
+              {items.map(({ product, name, price, quantity }) => (
+                <li
+                  key={product}
+                  className="flex justify-between py-2 text-gray-800 dark:text-gray-200"
                 >
-                  {label}
-                </label>
-                <input
-                  id={name}
-                  name={name}
-                  type={type}
-                  value={(shippingAddress as any)[name]}
-                  onChange={handleChange}
-                  className={`w-full rounded-md border px-3 py-2
-                    ${
-                      isDarkMode
-                        ? "bg-slate-700 border-slate-600 text-gray-100 placeholder-gray-400"
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                    }
-                    focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                  placeholder={`Enter ${label.toLowerCase()}`}
-                  required
-                />
-              </div>
-            ))}
-          </div>
+                  <div>
+                    <span className="font-medium">{name}</span> × {quantity}
+                  </div>
+                  <div>${(price * quantity).toFixed(2)}</div>
+                </li>
+              ))}
+            </ul>
+            <div className="text-right text-lg font-bold text-blue-600 dark:text-blue-400">
+              Total: ${total.toFixed(2)}
+            </div>
+          </section>
 
-          <h2 className="text-xl font-semibold mb-4 border-b border-gray-300 dark:border-slate-700 pb-2">
-            Payment Method
-          </h2>
-
-          <div className="space-y-4 mb-6 text-gray-900 dark:text-gray-200">
-            <label className="inline-flex items-center space-x-2">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="cod"
-                checked={paymentMethod === "cod"}
-                onChange={() => setPaymentMethod("cod")}
-                className="form-radio text-blue-600"
-              />
-              <span>Cash on Delivery</span>
-            </label>
-            <label className="inline-flex items-center space-x-2">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="card"
-                checked={paymentMethod === "card"}
-                onChange={() => setPaymentMethod("card")}
-                className="form-radio text-blue-600"
-              />
-              <span>Credit / Debit Card</span>
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition
-              ${
-                loading
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-400"
-              }`}
+          {/* Shipping & Payment Form */}
+          <form
+            onSubmit={submitOrder}
+            className="bg-white dark:bg-slate-800 rounded-xl shadow p-6"
           >
-            {loading ? "Placing Order..." : "Confirm Order"}
-          </button>
-        </form>
+            <h2 className="text-xl text-white font-semibold mb-4 border-b pb-2 border-gray-200 dark:border-slate-700">
+              Shipping Address
+            </h2>
+
+            <div className="grid gap-4 mb-6">
+              {[
+                { label: "Address", name: "address" },
+                { label: "City", name: "city" },
+                { label: "Postal Code", name: "postalCode" },
+                { label: "Country", name: "country" },
+              ].map(({ label, name }) => (
+                <div key={name}>
+                  <label
+                    htmlFor={name}
+                    className="block text-sm font-medium mb-1 dark:text-gray-300"
+                  >
+                    {label}
+                  </label>
+                  <input
+                    type="text"
+                    id={name}
+                    name={name}
+                    value={(shippingAddress as any)[name]}
+                    onChange={handleChange}
+                    placeholder={`Enter ${label.toLowerCase()}`}
+                    className={`w-full px-3 py-2 rounded-md border text-sm
+                      ${
+                        isDarkMode
+                          ? "bg-slate-700 border-slate-600 text-gray-100 placeholder-gray-400"
+                          : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                      }
+                      focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    required
+                  />
+                </div>
+              ))}
+            </div>
+
+            <h2 className="text-xl text-white font-semibold mb-4 border-b pb-2 border-gray-200 dark:border-slate-700">
+              Payment Method
+            </h2>
+
+            <div className="space-y-3 mb-6 text-white">
+              {[
+                { value: "card", label: "Credit / Debit Card" },
+              ].map(({ value, label }) => (
+                <label key={value} className="items-start flex flex-col gap-3">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={value}
+                    checked={paymentMethod === value}
+                    onChange={() => setPaymentMethod(value)}
+                    className="form-radio text-blue-600"
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 text-white rounded-lg font-semibold transition
+                ${
+                  loading
+                    ? "bg-blue-300 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-400"
+                }`}
+            >
+              {loading ? "Placing Order..." : "Confirm Order"}
+            </button>
+          </form>
+        </div>
       </main>
+      </div>
     </>
   );
 };

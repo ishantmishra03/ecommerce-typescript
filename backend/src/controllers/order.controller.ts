@@ -119,3 +119,18 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Error updating order status', error });
   }
 };
+
+export const deleteOrder = async (req: Request, res: Response) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+
+    res.json({ success: true, message: 'Order deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error deleting order', error });
+  }
+};

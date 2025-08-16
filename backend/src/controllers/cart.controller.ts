@@ -82,3 +82,21 @@ export const removeFromCart = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ success: false, message: 'Failed to remove from cart' });
   }
 };
+
+//Clear user cart
+export const clearUserCart = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.cart = []; 
+    await user.save();
+
+    res.json({ success: true, message: 'Cart cleared successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to remove from cart' });
+  }
+}

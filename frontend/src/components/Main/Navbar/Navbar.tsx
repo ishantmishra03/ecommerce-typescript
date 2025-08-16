@@ -162,6 +162,7 @@ const Navbar: React.FC = () => {
             {isAuthenticated ? (
               <>
                 <button
+                  onClick={() => handleNavigate('/orders')}
                   className={`p-2 rounded-full transition-colors ${
                     isDarkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
                   } shadow-sm`}

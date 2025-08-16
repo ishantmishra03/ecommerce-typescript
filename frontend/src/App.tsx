@@ -12,6 +12,7 @@ import { login } from './store/slices/auth.slice';
 import { fetchCart } from './store/slices/cart.slice'; 
 import ProductPage from './components/Products/ProductPage';
 import { useAppDispatch } from './store/hooks';
+import Loader from './components/Loader';
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -33,7 +34,7 @@ const App = () => {
     isAuth().finally(() => setCheckingAuth(false));
   }, []);
 
-  if (checkingAuth) return <div>Loading</div>; 
+  if (checkingAuth) return <Loader />; 
 
   return (
     <div>

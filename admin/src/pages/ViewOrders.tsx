@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Eye } from "lucide-react";
+import { Search, Filter, Eye, Trash2Icon } from "lucide-react";
 import { useData } from "../contexts/DataContext";
 import { Order } from "../types";
 import OrderModal from "../components/OrderModal";
+import axios from "../config/axios";
+import toast from "react-hot-toast";
 
 const ViewOrders: React.FC = () => {
   const { orders, fetchOrders } = useData();
@@ -104,9 +106,29 @@ const ViewOrders: React.FC = () => {
     }
   };
 
+  const handleDelete = async (orderId: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this order?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const { data } = await axios.delete(`/api/order/${orderId}`);
+
+      if (data.success) {
+        toast.success("Order deleted successfully");
+        fetchOrders();
+      } else {
+        toast.error(data.message || "Failed to delete order");
+      }
+    } catch (error) {
+      toast.error("Error deleting order");
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
-  }, [])
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -214,6 +236,15 @@ const ViewOrders: React.FC = () => {
                       title="View Details"
                     >
                       <Eye className="w-5 h-5" />
+                    </button>
+                  </td>
+                  <td className="py-4 px-4">
+                    <button
+                      onClick={() => handleDelete(order._id)}
+                      className="text-red-500 hover:text-red-700 dark:hover:text-red-400"
+                      title="Delete Order"
+                    >
+                      <Trash2Icon className="w-5 h-5" />
                     </button>
                   </td>
                 </tr>
