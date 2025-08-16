@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Eye, EyeOff, Sun, Moon, User, Mail, Lock, Loader2 } from 'lucide-react';
 import type { FormData, FormErrors } from '../../types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { RootState } from '../../store/store';
 import { toggleTheme } from '../../store/slices/theme.slice';
 import { login, setLoading } from '../../store/slices/auth.slice';
 import axios from '../../config/axios';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useAppDispatch } from '../../store/hooks';
 
 function Auth() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const isDarkMode = useSelector((state: RootState) => state.theme.mode  === 'dark');
   const { loading, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [isLogin, setIsLogin] = useState(true);
@@ -102,8 +103,11 @@ function Auth() {
           dispatch(login({ user: data.user }));
           toast.success(data.message);
           navigate('/products');
+        } else {
+          toast.error(data.message);
         }
-    } catch (error) {
+    } catch (error: any) {
+       toast.error(error.response?.data.message);
       setErrors({ general: error instanceof Error ? error.message : 'An error occurred' });
     } finally{
         setLoading(false);

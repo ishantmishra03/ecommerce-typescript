@@ -1,8 +1,11 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAppDispatch } from "../../store/hooks";
+import { addToCart, removeFromCart } from "../../store/slices/cart.slice";
 import type { RootState } from "../../store/store";
 import type { Product } from "../../types/product";
-import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 type Props = {
   product: Product;
@@ -17,13 +20,30 @@ const ProductCard: React.FC<Props> = ({
   compact,
   showAddToCart = false,
 }) => {
+  const dispatch = useAppDispatch();
+
   const isDarkMode = useSelector(
     (state: RootState) => state.theme.mode === "dark"
   );
 
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const items = cartItems ?? [];
+
+
+  const isInCart = items.some(
+    (item) => item.productId._id === product._id
+  );
+
   const handleAddToCart = () => {
-    alert(`Added "${product.name}" to cart!`);
+    dispatch(addToCart({ productId: product._id, quantity: 1 }));
+    toast.success("Added to Cart");
   };
+
+  const handleRemoveFromCart = () => {
+    dispatch(removeFromCart(product._id));
+    toast.success("Removed from cart");
+  };
+
 
   return (
     <div
@@ -39,17 +59,17 @@ const ProductCard: React.FC<Props> = ({
       `}
     >
       <Link to={`/product/${product._id}`}>
-      <img
-        src={product.images[0]}
-        alt={product.name}
-        className={
-          imageClassName ||
-          (compact
-            ? "w-full sm:w-36 h-44 sm:h-36 object-cover rounded-lg flex-shrink-0"
-            : "w-full h-48 sm:h-56 object-cover rounded-lg")
-        }
-        loading="lazy"
-      />
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          className={
+            imageClassName ||
+            (compact
+              ? "w-full sm:w-36 h-44 sm:h-36 object-cover rounded-lg flex-shrink-0"
+              : "w-full h-48 sm:h-56 object-cover rounded-lg")
+          }
+          loading="lazy"
+        />
       </Link>
 
       <div
@@ -95,18 +115,33 @@ const ProductCard: React.FC<Props> = ({
             </div>
 
             {product.stock > 0 ? (
-              <button
-                onClick={handleAddToCart}
-                className={`w-full rounded-md py-2 font-semibold transition
-                  ${
-                    isDarkMode
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-blue-500 hover:bg-blue-600 text-white"
-                  }
-                `}
-              >
-                Add to Cart
-              </button>
+              isInCart ? (
+                <button
+                  onClick={handleRemoveFromCart}
+                  className={`w-full rounded-md py-2 font-semibold transition
+                    ${
+                      isDarkMode
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-red-500 hover:bg-red-600 text-white"
+                    }
+                  `}
+                >
+                  Remove from Cart
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddToCart}
+                  className={`w-full rounded-md py-2 font-semibold transition
+                    ${
+                      isDarkMode
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                    }
+                  `}
+                >
+                  Add to Cart
+                </button>
+              )
             ) : (
               <p className="text-sm font-semibold text-red-500">Out of stock</p>
             )}
@@ -120,21 +155,39 @@ const ProductCard: React.FC<Props> = ({
             </span>
 
             {showAddToCart && product.stock > 0 && (
-              <button
-                onClick={handleAddToCart}
-                className={`ml-4 rounded-md px-4 py-2 font-semibold transition
-                  ${
-                    isDarkMode
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-blue-500 hover:bg-blue-600 text-white"
-                  }
-                `}
-              >
-                Add to Cart
-              </button>
+              isInCart ? (
+                <button
+                  onClick={handleRemoveFromCart}
+                  className={`ml-4 rounded-md px-4 py-2 font-semibold transition
+                    ${
+                      isDarkMode
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-red-500 hover:bg-red-600 text-white"
+                    }
+                  `}
+                >
+                  Remove
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddToCart}
+                  className={`ml-4 rounded-md px-4 py-2 font-semibold transition
+                    ${
+                      isDarkMode
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                    }
+                  `}
+                >
+                  Add
+                </button>
+              )
             )}
+
             {showAddToCart && product.stock <= 0 && (
-              <p className="text-sm font-semibold text-red-500">Out of stock</p>
+              <p className="text-sm font-semibold text-red-500 ml-4">
+                Out of stock
+              </p>
             )}
           </div>
         )}

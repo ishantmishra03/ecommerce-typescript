@@ -21,10 +21,11 @@ const setAuthCookie = (res: Response, token: string) => {
 // Register
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { email, password } = req.body;
+    const name = "User";
 
     const existingUser: IUserDocument | null = await User.findOne({ email });
-    if (existingUser) return res.status(409).json({ success: false, message: 'Email already registered' });
+    if (existingUser) return res.json({ success: false, message: 'Email already registered' });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);

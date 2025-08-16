@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IOrder } from '../types/Order';
 
-export interface IOrderDocument extends IOrder,Document {}
+export interface IOrderDocument extends IOrder, Document { }
 
 const OrderSchema: Schema = new Schema(
   {
@@ -18,9 +18,14 @@ const OrderSchema: Schema = new Schema(
       enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
-    shippingAddress: { type: String, required: true },
-    paymentMethod: { type: String, required: true }, 
-    isPaid: { type: Boolean, default: false }, 
+    shippingAddress: {
+      address: { type: String, required: true },
+      city: { type: String, required: true },
+      postalCode: { type: String, required: true },
+      country: { type: String, required: true },
+    },
+    paymentMethod: { type: String, required: true },
+    isPaid: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

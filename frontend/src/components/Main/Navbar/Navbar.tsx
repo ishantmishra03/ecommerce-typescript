@@ -21,6 +21,9 @@ const Navbar: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const cartItems = useSelector((state: RootState) => state.cart.items ?? []);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
   const isDarkMode = useSelector(
     (state: RootState) => state.theme.mode === "dark"
   );
@@ -130,7 +133,10 @@ const Navbar: React.FC = () => {
                 } shadow-sm`}
                 aria-label="Toggle Search"
               >
-                <Search className="w-5 h-5" stroke={isDarkMode ? '#fff' : '#1f2937'}/>
+                <Search
+                  className="w-5 h-5"
+                  stroke={isDarkMode ? "#fff" : "#1f2937"}
+                />
               </button>
 
               <form
@@ -161,7 +167,10 @@ const Navbar: React.FC = () => {
                   } shadow-sm`}
                   aria-label="User Profile"
                 >
-                  <User className="w-6 h-6" stroke={isDarkMode ? '#fff' : '#1f2937'}/>
+                  <User
+                    className="w-6 h-6"
+                    stroke={isDarkMode ? "#fff" : "#1f2937"}
+                  />
                 </button>
 
                 <button
@@ -170,9 +179,11 @@ const Navbar: React.FC = () => {
                   aria-label="Cart"
                 >
                   <ShoppingBag className="w-6 h-6" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold shadow-lg">
-                    3
-                  </span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold shadow-lg">
+                      {cartCount}
+                    </span>
+                  )}
                 </button>
 
                 <button
@@ -201,9 +212,15 @@ const Navbar: React.FC = () => {
               aria-label="Toggle Menu"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6"stroke={isDarkMode ? '#fff' : '#1f2937'}/>
+                <X
+                  className="w-6 h-6"
+                  stroke={isDarkMode ? "#fff" : "#1f2937"}
+                />
               ) : (
-                <Menu className="w-6 h-6" stroke={isDarkMode ? '#fff' : '#1f2937'}/>
+                <Menu
+                  className="w-6 h-6"
+                  stroke={isDarkMode ? "#fff" : "#1f2937"}
+                />
               )}
             </button>
           </div>

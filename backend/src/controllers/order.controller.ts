@@ -7,23 +7,24 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
   const { items, total, shippingAddress, paymentMethod } = req.body;
 
   if (!items || items.length === 0) {
-    return res.status(400).json({success: false, message: 'No order items' });
+    return res.status(400).json({ success: false, message: 'No order items' });
   }
 
   try {
     const order = new Order({
-      user: req.userId,   
+      user: req.userId,
       items,
       total,
       shippingAddress,
       paymentMethod,
-      status: 'pending',    
+      status: 'pending',
+      isPaid: false,
     });
 
     const createdOrder = await order.save();
-    res.status(201).json({success: true, message : "Order Placed successfully"});
+    res.status(201).json({ success: true, message: "Order Placed successfully" });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error creating order', error });
+    res.status(500).json({ success: false, message: 'Error creating order', error });
   }
 };
 
@@ -35,12 +36,12 @@ export const getOrderById = async (req: Request, res: Response) => {
       .populate('items.product', 'name price');
 
     if (!order) {
-      return res.status(404).json({success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    res.json({success: true, order});
+    res.json({ success: true, order });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error fetching order', error });
+    res.status(500).json({ success: false, message: 'Error fetching order', error });
   }
 };
 
@@ -50,26 +51,36 @@ export const updateOrderToPaid = async (req: Request, res: Response) => {
     const order = await Order.findById(req.params.id);
 
     if (!order) {
-      return res.status(404).json({success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
     order.isPaid = true;
     order.status = 'processing';
 
     const updatedOrder = await order.save();
-    res.json({success: true, message : "Order updated"});
+    res.json({ success: true, message: "Order updated" });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error updating order payment', error });
+    res.status(500).json({ success: false, message: 'Error updating order payment', error });
   }
 };
 
 // Get all orders 
 export const getMyOrders = async (req: AuthRequest, res: Response) => {
   try {
-    const orders = await Order.find({ user: req.userId }).populate('items.product', 'name price');
-    res.json({success: true, orders});
+    const rawOrders = await Order.find({ user: req.userId })
+      .populate('items.product', 'name price');
+
+    const orders = rawOrders.map(order => {
+      const filteredItems = order.items.filter(item => item.product !== null);
+      return {
+        ...order.toObject(),
+        items: filteredItems,
+      };
+    });
+
+    res.json({ success: true, orders });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error fetching user orders', error });
+    res.status(500).json({ success: false, message: 'Error fetching user orders', error });
   }
 };
 
@@ -81,7 +92,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
     const orders = await Order.find()
       .populate('user', 'name email')
       .populate('items.product', 'name price');
-    res.json({success: true, orders});
+    res.json({ success: true, orders });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching orders', error });
   }
@@ -94,17 +105,17 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     const order = await Order.findById(req.params.id);
 
     if (!order) {
-      return res.status(404).json({success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
     if (!['pending', 'processing', 'shipped', 'delivered', 'cancelled'].includes(status)) {
-      return res.status(400).json({success: false, message: 'Invalid status' });
+      return res.status(400).json({ success: false, message: 'Invalid status' });
     }
 
     order.status = status;
     const updatedOrder = await order.save();
-    res.json({success: true, message : "Order updated"});
+    res.json({ success: true, message: "Order updated" });
   } catch (error) {
-    res.status(500).json({success: false, message: 'Error updating order status', error });
+    res.status(500).json({ success: false, message: 'Error updating order status', error });
   }
 };
