@@ -58,7 +58,8 @@ const Navbar: React.FC = () => {
         handleNavigate("/auth");
       }
     } catch (error) {
-      toast.error(error.response?.data.message);
+      const err = error as Error;
+      toast.error(err.message);
     }
   };
 
@@ -162,7 +163,7 @@ const Navbar: React.FC = () => {
             {isAuthenticated ? (
               <>
                 <button
-                  onClick={() => handleNavigate('/orders')}
+                  onClick={() => handleNavigate("/orders")}
                   className={`p-2 rounded-full transition-colors ${
                     isDarkMode ? "hover:bg-slate-800" : "hover:bg-gray-100"
                   } shadow-sm`}

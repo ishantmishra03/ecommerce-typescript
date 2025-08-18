@@ -19,7 +19,8 @@
     "express": "^5.1.0",
     "imagekit": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.17.0"
+    "mongoose": "^8.17.0",
+    "stripe": "^18.4.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

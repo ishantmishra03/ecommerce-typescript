@@ -22,7 +22,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
     });
 
     const createdOrder = await order.save();
-    res.status(201).json({ success: true, message: "Order Placed successfully" });
+    res.status(201).json({ success: true, message: "Order Placed successfully", orderId: createdOrder._id });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error creating order', error });
   }

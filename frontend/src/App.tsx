@@ -13,6 +13,9 @@ import { fetchCart } from './store/slices/cart.slice';
 import ProductPage from './components/Products/ProductPage';
 import { useAppDispatch } from './store/hooks';
 import Loader from './components/Loader';
+import Payment from './pages/Payment';
+import PaymentSuccess from './pages/Payment/PaymentSuccess';
+import PaymentCancel from './pages/Payment/PaymentCancel';
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -67,6 +70,33 @@ const App = () => {
           element={
             <ProtectedRoute>
               <PlaceOrder />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payment-successful"
+          element={
+            <ProtectedRoute>
+              <PaymentSuccess />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/payment-cancelled"
+          element={
+            <ProtectedRoute>
+              <PaymentCancel />
             </ProtectedRoute>
           }
         />

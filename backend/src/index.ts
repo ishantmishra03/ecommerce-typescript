@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
-import cors, { CorsOptions } from 'cors';
+import cors, { CorsOptions, CorsOptionsDelegate } from 'cors';
 import cookieParser from 'cookie-parser';
 
 import connectDB from './config/db';
@@ -9,6 +9,7 @@ import adminAuthRouter from './routes/adminAuth.routes';
 import productRouter from './routes/product.routes';
 import cartRouter from './routes/cart.routes';
 import orderRouter from './routes/order.routes';
+import paymentRouter from './routes/payment.routes';
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ const whitelist: string[] = process.env.CORS_WHITELIST
 
 
 const corsOptions: CorsOptions = {
-  origin: (origin, callback) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (!origin || whitelist.includes(origin)) {
       callback(null, true);
     } else {
@@ -32,10 +33,10 @@ const corsOptions: CorsOptions = {
   credentials: true,
 };
 
+app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
-app.use(express.json());
 
 
 app.use('/api/auth', authRouter);
@@ -43,6 +44,7 @@ app.use('/api/product', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/admin', adminAuthRouter);
+app.use('/api/payment', paymentRouter);
 
 
 app.get('/', (_req: Request, res: Response) => {

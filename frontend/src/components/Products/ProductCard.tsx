@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch } from "../../store/hooks";
 import { addToCart, removeFromCart } from "../../store/slices/cart.slice";
